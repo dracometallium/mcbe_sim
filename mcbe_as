@@ -1,0 +1,109 @@
+#!/usr/bin/env -S - LC_ALL=C awk -f
+
+BEGIN{
+    label["IN"] = 30
+    label["OUT"] = 31
+    ref_table[""] = 0
+    delete ref_table[""]
+    ref_table_type[""] = 0
+    delete ref_table_type[""]
+    mem[""] = 0
+    delete mem[""]
+}
+
+{
+    gsub("[ \t][ \t]*", " ", $0)
+    gsub(" $", "", $0)
+    gsub("^ ", "", $0)
+    dir = NR - 1
+    nan = 0
+}
+
+($1 ~ ".*:"){
+    split($0, linea, ":")
+    ins_label = $0
+    gsub(":.*", "", ins_label)
+    gsub(".*: *", "", $0)
+    label[ins_label] = dir
+}
+
+(NF == 0){
+    mem[dir] = 0
+    next
+}
+
+($1 ~ "HLT"){
+    cop_code = 32
+    dir_type = "N"
+    nan = 1
+}
+
+($1 ~ "NOP"){
+    cop_code = 0
+    dir_type = "N"
+    nan = 1
+}
+
+(NF == 1)&&(!nan){
+    mem[dir] = int($1)
+    next
+}
+
+($1 ~ "LD"){
+    cop_code = 64
+    dir_type = "M"
+}
+
+($1 ~ "ST"){
+    cop_code = 96
+    dir_type = "M"
+}
+
+($1 ~ "ADD"){
+    cop_code = 128
+    dir_type = "M"
+}
+
+($1 ~ "SUB"){
+    cop_code = 160
+    dir_type = "M"
+}
+
+($1 ~ "JMP"){
+    cop_code = 192
+    dir_type = "R"
+}
+
+($1 ~ "JZ"){
+    cop_code = 224
+    dir_type = "R"
+}
+
+{
+    operand = 0
+    if(dir_type != "N" && label[$2] == ""){
+        ref_table[dir] = $2
+        ref_table_type[dir] = dir_type
+    } else {
+        if(dir_type == "M"){
+            operand = label[$2]
+        } else if(dir_type == "R"){
+            operand = label[$2] - dir
+        }
+    }
+    mem[dir] = cop_code + ((operand + 32) % 32)
+}
+
+END{
+    for(i in ref_table){
+        if(ref_table_type[i] == "M"){
+            operand = label[ref_table[i]]
+        } else {
+            operand = label[ref_table[i]] - i
+        }
+        mem[i] = mem[i] + ((operand + 32) % 32)
+    }
+    for(i=0; i <= dir; i++){
+        printf("%c", mem[i])
+    }
+}
