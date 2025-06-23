@@ -29,6 +29,8 @@ Para ejecutar el programa `p1.bin` se debe ejecutar `mcbe_sim p1.sim`.
     celdas de memoria utilizando los caracteres `0` y `1` (ver ejemplo
     `programa1.fb`).
 
+-   `--table`: muestra la traza de la ejecución del ciclo de instrucción.
+
 ## Programas incluidos
 
 En este repositorio se incluyen tres programas en ensamblador de `MCBE`.

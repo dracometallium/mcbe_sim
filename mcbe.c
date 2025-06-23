@@ -5,6 +5,8 @@ int8_t AC;
 uint8_t PC;
 uint8_t IR;
 uint8_t flags;
+uint8_t mdir;
+uint8_t mval;
 int8_t mem[32];
 
 uint8_t bitExt(uint8_t num)
@@ -30,9 +32,10 @@ void step()
     uint8_t op;
     uint8_t arg;
     if (flags & (F_HALT | F_IN | F_OUT)) {
-        /*The computers needs data, wants to push data, or is off */
+        /*The computer needs data, wants to push data, or is off */
         return;
     }
+    flags = flags & ~F_MEM;
     PC = PC & ARG;
     IR = mem[PC];
     op = IR & OP;
@@ -51,8 +54,12 @@ void step()
             flags = flags | F_OUT;
             mem[arg] = AC;
             return;
+        } else {
+            flags = flags | F_MEM;
         }
         mem[arg] = AC;
+        mval = AC;
+        mdir = arg;
         PC++;
         break;
     case ADD:
@@ -140,4 +147,14 @@ uint8_t get_IR()
 int8_t get_AC()
 {
     return AC;
+}
+
+uint8_t get_mval()
+{
+    return mval;
+}
+
+int8_t get_mdir()
+{
+    return mdir;
 }

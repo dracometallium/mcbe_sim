@@ -38,28 +38,66 @@ int leer(FILE *entrada)
 
 }
 
-int imprimirEstado()
+int imprimirHeader()
 {
-    printf("PC: %u\tIR: %u\tAC: %d\n", get_PC(), get_IR(), get_AC());
+    printf(" PC ~ IR ~ Co | Op ~ AC | Memoria  | >> ~ PC |\n");
     return 0;
 }
 
-int ejecutar()
+void imprimirEstado_decode()
+{
+    printf(" %02X ~ %02X ~ %02X | %02X ~",
+           get_PC(), get_IR(), (get_IR() & OP) >> 5, get_IR() & ARG);
+}
+
+void imprimirEstado_ejecute()
+{
+    if (get_flag(F_OUT)) {
+        printf(" %02X |          | %02X ~ %02X |\n", get_AC(), out(), get_PC());
+    } else if (get_flag(F_MEM)) {
+        printf(" %02X | (%02X)<-%02X |    ~ %02X |\n",
+               get_AC(), get_mdir(), get_mval(), get_PC());
+    } else {
+        printf(" %02X |          |    ~ %02X |\n", get_AC(), get_PC());
+    }
+}
+
+int ejecutar(bool showTable)
 {
     int num;
     num = 0;
-    /*imprimirEstado(); */
+    if (showTable) {
+        imprimirHeader();
+    }
     while (!(get_flag(F_HALT))) {
+            if(showTable){
+                imprimirEstado_decode();
+            }
         if (get_flag(F_IN)) {
+            if(showTable){
+                printf(" !! ");
+            }
             printf("Ingrese un número: ");
             scanf("%d", &num);
+            if(showTable){
+                imprimirEstado_decode();
+            }
             in(num);
+            if(showTable){
+                imprimirEstado_ejecute();
+            }
         } else if (get_flag(F_OUT)) {
-            num = out();
-            printf("Salida: %d\n", num);
+            if(showTable){
+                imprimirEstado_ejecute();
+            } else {
+                num = out();
+                printf("Salida: %d\n", num);
+            }
         } else {
             step();
-            /*imprimirEstado(); */
+            if(showTable){
+                imprimirEstado_ejecute();
+            }
         }
     }
     printf("Ejecución terminada\n");
@@ -70,17 +108,24 @@ int main(int carg, char **varg)
 {
     FILE *entrada;
     bool fakeBinary;
+    bool showTable;
     int i;
-    char *file_name = NULL;
+    char *file_name;
     fakeBinary = false;
+    showTable = false;
+    file_name = NULL;
     if (carg < 2) {
         fprintf(stderr, "Cantidad incorrecta de parámetros\n"
                 "USO: mcbe_sim programa.bin\n"
-                "USO: mcbe_sim --fake-binary programa.txt\n");
+                "USO: mcbe_sim --fake-binary programa.txt\n"
+                "USO: mcbe_sim --table programa.bin\n");
         return 1;
     }
     for (i = 1; i < carg; i++) {
-        if ((strcmp(varg[i], "-fb") == 0
+        if ((strcmp(varg[i], "-t") == 0
+             || strcmp(varg[i], "--table") == 0)) {
+            showTable = true;
+        } else if ((strcmp(varg[i], "-fb") == 0
              || strcmp(varg[i], "--fake-binary") == 0)) {
             fakeBinary = true;
         } else {
@@ -98,7 +143,7 @@ int main(int carg, char **varg)
         } else {
             leer(entrada);
         }
-        ejecutar();
+        ejecutar(showTable);
         fclose(entrada);
         return 0;
     }
