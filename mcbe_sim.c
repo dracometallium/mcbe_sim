@@ -104,6 +104,15 @@ int ejecutar(bool showTable)
     return 0;
 }
 
+void showHelp(){
+    fprintf(stderr, "Cantidad incorrecta de parámetros\n"
+            "USO: mcbe_sim programa.bin\n"
+            "USO: mcbe_sim --fake-binary programa.txt\n"
+            "USO: mcbe_sim --table programa.bin\n"
+            "USO: mcbe_sim --help\n");
+    return;
+}
+
 int main(int carg, char **varg)
 {
     FILE *entrada;
@@ -115,10 +124,7 @@ int main(int carg, char **varg)
     showTable = false;
     file_name = NULL;
     if (carg < 2) {
-        fprintf(stderr, "Cantidad incorrecta de parámetros\n"
-                "USO: mcbe_sim programa.bin\n"
-                "USO: mcbe_sim --fake-binary programa.txt\n"
-                "USO: mcbe_sim --table programa.bin\n");
+        showHelp();
         return 1;
     }
     for (i = 1; i < carg; i++) {
@@ -128,6 +134,10 @@ int main(int carg, char **varg)
         } else if ((strcmp(varg[i], "-fb") == 0
              || strcmp(varg[i], "--fake-binary") == 0)) {
             fakeBinary = true;
+        } else if ((strcmp(varg[i], "-h") == 0
+             || strcmp(varg[i], "--help") == 0)) {
+            showHelp();
+            return 0;
         } else {
             file_name = varg[i];
         }
