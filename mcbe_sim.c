@@ -3,7 +3,7 @@
 #include <string.h>
 #include "mcbe.h"
 
-int leer_fb(FILE * entrada)
+int leer_fb(FILE *entrada)
 {
     int c;
     int i;
@@ -25,7 +25,7 @@ int leer_fb(FILE * entrada)
     return 0;
 }
 
-int leer(FILE * entrada)
+int leer(FILE *entrada)
 {
     int c;
     int i;
@@ -48,7 +48,7 @@ int ejecutar()
 {
     int num;
     num = 0;
-    /*imprimirEstado();*/
+    /*imprimirEstado(); */
     while (!(get_flag(F_HALT))) {
         if (get_flag(F_IN)) {
             printf("Ingrese un número: ");
@@ -59,7 +59,7 @@ int ejecutar()
             printf("Salida: %d\n", num);
         } else {
             step();
-            /*imprimirEstado();*/
+            /*imprimirEstado(); */
         }
     }
     printf("Ejecución terminada\n");
@@ -70,17 +70,24 @@ int main(int carg, char **varg)
 {
     FILE *entrada;
     bool fakeBinary;
+    int i;
+    char *file_name = NULL;
     fakeBinary = false;
     if (carg < 2) {
         fprintf(stderr, "Cantidad incorrecta de parámetros\n"
-                "USO: mcbe_sim programa.bin\n");
+                "USO: mcbe_sim programa.bin\n"
+                "USO: mcbe_sim --fake-binary programa.txt\n");
+        return 1;
     }
-    if (carg == 3 && (strcmp(varg[1], "-fb") == 0 ||
-                     strcmp(varg[1], "--fake-binary") == 0)) {
-        varg[1] = varg[2];
-        fakeBinary = true;
+    for (i = 1; i < carg; i++) {
+        if ((strcmp(varg[i], "-fb") == 0
+             || strcmp(varg[i], "--fake-binary") == 0)) {
+            fakeBinary = true;
+        } else {
+            file_name = varg[i];
+        }
     }
-    entrada = fopen(varg[1], "r");
+    entrada = fopen(file_name, "r");
     if (entrada == NULL) {
         fprintf(stderr, "No se pudo abrir el archivo de entrada T_T\n");
         return -1;

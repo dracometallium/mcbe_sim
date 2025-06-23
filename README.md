@@ -22,6 +22,13 @@ suficiente con ejecutar el comando `make`.
 
 Para ejecutar el programa `p1.bin` se debe ejecutar `mcbe_sim p1.sim`.
 
+### Opciones:
+
+-   `--fake-binary`: el archivo del programa no es un binario real, sino que
+    es un archivo de texto. Cada linea representa el contenido binario de las
+    celdas de memoria utilizando los caracteres `0` y `1` (ver ejemplo
+    `programa1.fb`).
+
 ## Programas incluidos
 
 En este repositorio se incluyen tres programas en ensamblador de `MCBE`.
