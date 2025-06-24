@@ -70,24 +70,22 @@ int ejecutar(bool showTable)
         imprimirHeader();
     }
     while (!(get_flag(F_HALT))) {
-            if(showTable){
-                imprimirEstado_decode();
-            }
         if (get_flag(F_IN)) {
-            if(showTable){
+            if (showTable) {
                 printf(" !! ");
             }
             printf("Ingrese un número: ");
             scanf("%d", &num);
-            if(showTable){
+            if (showTable) {
                 imprimirEstado_decode();
             }
             in(num);
-            if(showTable){
+            if (showTable) {
                 imprimirEstado_ejecute();
             }
         } else if (get_flag(F_OUT)) {
-            if(showTable){
+            if (showTable) {
+                imprimirEstado_decode();
                 imprimirEstado_ejecute();
             } else {
                 num = out();
@@ -95,8 +93,11 @@ int ejecutar(bool showTable)
             }
         } else {
             step();
-            if(showTable){
-                imprimirEstado_ejecute();
+            if (showTable) {
+                imprimirEstado_decode();
+                if (!(get_flag(F_IN))) {
+                    imprimirEstado_ejecute();
+                }
             }
         }
     }
@@ -104,12 +105,12 @@ int ejecutar(bool showTable)
     return 0;
 }
 
-void showHelp(){
+void showHelp()
+{
     fprintf(stderr, "Cantidad incorrecta de parámetros\n"
             "USO: mcbe_sim programa.bin\n"
             "USO: mcbe_sim --fake-binary programa.txt\n"
-            "USO: mcbe_sim --table programa.bin\n"
-            "USO: mcbe_sim --help\n");
+            "USO: mcbe_sim --table programa.bin\n" "USO: mcbe_sim --help\n");
     return;
 }
 
@@ -128,14 +129,13 @@ int main(int carg, char **varg)
         return 1;
     }
     for (i = 1; i < carg; i++) {
-        if ((strcmp(varg[i], "-t") == 0
-             || strcmp(varg[i], "--table") == 0)) {
+        if ((strcmp(varg[i], "-t") == 0 || strcmp(varg[i], "--table") == 0)) {
             showTable = true;
         } else if ((strcmp(varg[i], "-fb") == 0
-             || strcmp(varg[i], "--fake-binary") == 0)) {
+                    || strcmp(varg[i], "--fake-binary") == 0)) {
             fakeBinary = true;
         } else if ((strcmp(varg[i], "-h") == 0
-             || strcmp(varg[i], "--help") == 0)) {
+                    || strcmp(varg[i], "--help") == 0)) {
             showHelp();
             return 0;
         } else {
